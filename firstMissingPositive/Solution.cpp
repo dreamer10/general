@@ -15,9 +15,11 @@ void printArray(int A[], int n)
 
 int Solution::firstMissingPositive(int A[], int n)
 {
-	    for (int i = 0; i < n; i++) {
-            if (A[i] >= 1 && A[i] <= n)
+	    for (int i = 0; i < n;) {
+            if (A[i] >= 1 && A[i] <= n && A[i] - 1 != i && A[i] != A[A[i] - 1])
                 swap(A[i], A[A[i] - 1]);
+			else
+				i++;
         }
 		::printArray(A, n);
         
