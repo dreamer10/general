@@ -26,9 +26,13 @@ public:
 										 int preLo, int preHi,
 										 int inLo, int inHi);
 	TreeNode *buildTree(vector<int> &preorder, vector<int> &inorder);
+	double pow(double x, int n);
+	int lengthOfLastWord(const char *s);
+	vector<vector<int> > permuteUnique(vector<int> &num);
 
 private:
 	void swap(int &a, int &b);
+	void permuteUnique(vector<int> &num, vector<int> &tmp, bool canUse[], vector<vector<int> > &result);
 
 };
 
