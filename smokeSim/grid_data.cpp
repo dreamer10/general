@@ -37,7 +37,7 @@ GridData& GridData::operator=(const GridData& orig)
 void GridData::initialize(double dfltValue)
 {
    mDfltValue = dfltValue;
-   mMax[0] = theCellSize*theDim[0];
+   mMax[0] = theCellSize*theDim[0];		//theDim contains how many cells in each dimension, so mMax contains the max length of the global box in each dimension.
    mMax[1] = theCellSize*theDim[1];
    mMax[2] = theCellSize*theDim[2];
    mData.resize(theDim[0]*theDim[1]*theDim[2], false);
@@ -109,7 +109,7 @@ double GridData::interpolate(const vec3& pt)
 	assert (fractz < 1.0 && fractz >= 0);
 
 	// Y @ low X, low Z:
-	double tmp1 = (*this)(i,j,k);
+	double tmp1 = (*this)(i,j,k);		//calculate the Y value on the plane low X-Z
 	double tmp2 = (*this)(i,j+1,k);
 	// Y @ high X, low Z:
 	double tmp3 = (*this)(i+1,j,k);

@@ -33,6 +33,7 @@ public:
 
 protected:
 
+
 	// Setup:
 	void initialize();
 
@@ -62,6 +63,35 @@ protected:
 	double getTemperature(const vec3& pt);
 	double getDensity(const vec3& pt);
 	vec3 getCenter(int i, int j, int k);
+
+
+	/*************  Added by Hao(BEGIN) *********/
+
+	GridData mFilter;			//only 0 ~ theDim[X] / 2 and 0 ~ theDim[Y] / 2 will be used
+	GridData mDensityBlur;
+	GridData mTargetDensity;
+	GridData mTargetDensityBlur;
+	GridData mDrivingForce;
+
+	//Advect velocity:
+	void advectVX(const vec3 &index, double dt);
+	void advectVY(const vec3 &index, double dt);
+	void advectVZ(const vec3 &index, double dt);
+
+	int getNonSolid(int i, int j, int k);
+	int mFilterWidth = 0;
+
+	bool checkDivergence();
+
+	//to use this function, make sure the theDim[X] == theDim[Y]
+	void FilterGenGaussian2D(GridData &filter, int halfCellNum, float sigma);
+	void Convolve(GridData &out, const GridData &in, GridData &filter, int filterWidth, int absVal = 0);
+
+public:
+	void computeDrivingForce(double dt);
+
+protected:
+	/************* Added by Hao(END) *************/
 
 	// Sets up the A matrix:
 	void setUpAMatrix();

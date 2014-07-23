@@ -18,6 +18,7 @@ int theMenu = 0;
 int theButtonState = 0;
 int theModifierState = 0;
 bool isRunning = true;
+bool firstPass = true;
 
 int savedWidth = 0;
 int savedHeight = 0;
@@ -123,7 +124,15 @@ void onKeyboardSpecialCb(int key, int x, int y)
 
 void onTimerCb(int value)
 {
-   if (isRunning) theSmokeSim.step();
+   /* Modified by Hao */
+   if (isRunning) {
+	    theSmokeSim.step();
+	}
+	if (firstPass) {
+		//theSmokeSim.setRecording(!theSmokeSim.isRecording(), savedWidth, savedHeight);
+		firstPass = false;
+	}
+	/* ********* */
    glutTimerFunc(theMillisecondsPerFrame, onTimerCb, 0);
    glutPostRedisplay();
 }

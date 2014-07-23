@@ -1,10 +1,11 @@
 # Jello cube Makefile 
 # Jernej Barbic, USC
 
-LIBRARIES = -framework OpenGL -framework GLUT 
+DEBUG := -g
+LIBRARIES = -framework OpenGL -framework GLUT $(DEBUG)
 
-COMPILER = g++
-COMPILERFLAGS = -O2
+COMPILER = g++ $(DEBUG)
+COMPILERFLAGS = -O2 $(DEBUG)
 OBJ := basic_math.o camera.o constants.o fps.o grid_data.o mac_grid.o main.o \
 	 smoke_sim.o stb_image.o stb_image_write.o vec.o
 
