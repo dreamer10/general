@@ -69,3 +69,16 @@ val longest_string3 = longest_string_helper fn (x, y) => if x >= y then x else y
 
 val longest_string4 = longest_string_helper fn (x, y) => if x > y then x else y
 
+
+val longest_capitalized = fn strs => strs |> only_capitals |> longest_string1
+
+
+val rev_string = fn str => str |> String.explode |> List.rev |> String.implode
+
+fun first_answer f [] = raise NoAnswer
+  | first_answer f x::xs =
+    case f x of
+	SOME v => v
+     | NONE => first_answer f xs
+
+
