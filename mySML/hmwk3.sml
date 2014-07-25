@@ -81,7 +81,7 @@ fun first_answer f [] = raise NoAnswer
   | first_answer f x::xs =
     case f x of
 	SOME v => v
-     | NONE => first_answer f xs
+      | NONE => first_answer f xs
 
 
       
@@ -89,8 +89,8 @@ fun all_answers f strs =
     let fun helper [] acc = SOME acc
           | helper x::xs acc =
                 case f x of
-                  NONE => NONE
-                | SOME v => helper xs (v @ acc)
+                    NONE => NONE
+                  | SOME v => helper xs (v @ acc)
     in helper strs []
     end
 
@@ -100,8 +100,9 @@ val count_wildcards = g (fn () => 1) (fn x => 0)
 val count_wild_and_variable_lengths = g (fn () => 1) (fn str => String.size)
 
 fun count_some_var (str pat) =
-  g (fn () => 0) (fn str2 => if str == str2 then 1 else 0) pat
+    g (fn () => 0) (fn str2 => if str == str2 then 1 else 0) pat
 
 
 fun check_pat pat =
-    foldl (
+    let fun helper1 pat acc =
+	    
