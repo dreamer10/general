@@ -85,13 +85,13 @@ fun first_answer f [] = raise NoAnswer
 
 
       
-fun all_answers f strs =
+fun all_answers f xs =
     let fun helper [] acc = SOME acc
           | helper x::xs acc =
                 case f x of
                     NONE => NONE
                   | SOME v => helper xs (v @ acc)
-    in helper strs []
+    in helper xs []
     end
 
 
@@ -105,4 +105,41 @@ fun count_some_var (str pat) =
 
 fun check_pat pat =
     let fun helper1 pat acc =
+	    case pat of
+		Variable x => x::acc
+	      | TupleP ps => List.foldl(fn (p, acc) => helper p acc, acc, ps)
+	      | _ => acc
 	    
+	fun helper2 [] = false
+	  | helper2 x::xs = not List.exists (fn y => if x == y then true else false) xs andalso not helper2(xs)
+												    
+    in
+	let val temp = helper1 pat []
+	in 
+	    case temp of 
+		[] => true
+	      | _ => helper2 temp
+	end
+    end
+
+
+fun match (valu, pat) =
+    case (valu, pat) of
+	(_, Wildcard) => SOME []
+     | (Unit, UnitP) => SOME []
+     | (v, Variable s) => SOME [(s, v)]
+     | (Const x, ConstP y) => if x = y then SOME [] else NONE
+     | (Tuple vs, TupleP ps) => if List.length vs <> List.length ps
+			      then NONE
+			      else 
+				  let pairList = List.pair(vs, ps)
+				  in 
+				      case all_answers (fn (x, y) => match(x, y)) pairList of
+					| NONE => NONE
+					| SOME lst => SOME lst
+				  end
+     | (Constructor(s1, v), Constructor(s2, p)) => if s1 = s2
+						   then match(v, p)
+						   else NONE
+     | (_, _) => NONE
+
