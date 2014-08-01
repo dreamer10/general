@@ -1,0 +1,6 @@
+fun only_capitals [] = []
+  | only_capitals strs = 
+    List.filter(fn str => Char.isUpper(String.sub str), strs)
+
+fun longest_string1 [] = ""
+  | longest_string1  = 
