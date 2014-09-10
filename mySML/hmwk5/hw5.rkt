@@ -1,6 +1,9 @@
 ;; Programming Languages, Homework 5
 
 #lang racket
+
+(require racket/trace)
+
 (provide (all-defined-out)) ;; so we can put tests in a second file
 
 ;; definition of structures for MUPL programs - Do NOT change
@@ -51,8 +54,9 @@
         
         [(int? e) e]
         
-        [(closure? e)
-         (closure (eval-under-env e env) env)]
+        [(closure? e) e]
+        
+        [(aunit? e) e]
         
         [(add? e) 
          (let ([v1 (eval-under-env (add-e1 e) env)]
@@ -73,25 +77,23 @@
                        (eval-under-env (ifgreater-e4 e) env))
                    (error "MUPL comparison applied to non-number")))]
         [(fun? e)
-         (let ([fun_name (fun-nameopt e)])
-               (closure env (cons (cons fun_name (fun-body e)) (fun-formal e))))]
-        
+         (closure env e)]
+
         [(call? e)
          (let ([fun_closure (eval-under-env (call-funexp e) env)]
                [fun_arg (eval-under-env (call-actual e) env)])
            (if (not (closure? fun_closure))
                (error "MUPL no valid function in the environment")
-               (let* ([c_env (closure-env fun_closure)]
-                     [fun_pr (closure-fun fun_closure)]
-                     [fun_name_body (car fun_pr)]
-                     [fun_name (car fun_name_body)]
-                     [fun_body (cdr fun_name_body)]
-                     [fun_argname (cdr fun_pr)])
-                 (if fun_name
-                     (eval-under-env fun_body
-                                     (cons (cons fun_name fun_closure) (cons (cons fun_argname fun_arg) c_env)))
+               (letrec ([c_env (closure-env fun_closure)]
+                     [func (closure-fun fun_closure)]
+                     [func_name (fun-nameopt func)]
+                     [func_arg (fun-formal func)]
+                     [func_body (fun-body func)])
+                 (if func_name
+                     (eval-under-env func_body
+                                     (cons (cons func_name fun_closure) (cons (cons func_arg fun_arg) c_env)))
                      ; else if it's anonymous function
-                     (eval-under-env fun_body (cons (cons fun_argname  fun_arg) c_env))))))]
+                     (eval-under-env func_body (cons (cons func_arg  fun_arg) c_env))))))]
         
         [(mlet? e)
          (let ([e1_val (eval-under-env (mlet-e e) env)])
@@ -103,18 +105,18 @@
            (apair v1 v2))]
         
         [(fst? e)
-         (let ([v (eval-under-env e env)])
+         (let ([v (eval-under-env (fst-e e) env)])
            (if (apair? v)
-               (apair-e1 e)
+               (apair-e1 v)
                (error "MUPL fst applied not to a pair")))]
         [(snd? e)
-         (let ([v (eval-under-env e env)])
+         (let ([v (eval-under-env (snd-e e) env)])
            (if (not (apair? v))
-               (error "MUPL snd not applied to a pair")
+               (error "MUPL snd applied NOT to a pair")
                (apair-e2 v)))]
         
         [(isaunit? e)
-         (let ([v (eval-under-env e)])
+         (let ([v (eval-under-env (isaunit-e e) env)])
            (if (aunit? v)
                (int 1)
                (int 0)))]
@@ -128,7 +130,7 @@
         
 ;; Problem 3
 
-(define (ifaunit e1 e2 e3) (ifgreater (isaunit e1) 0 e2 e3))
+(define (ifaunit e1 e2 e3) (ifgreater (isaunit e1) (int 0) e2 e3))
 
 (define (mlet* lstlst e2)
   (if (null? lstlst)
@@ -136,19 +138,30 @@
       (let ([pr (car lstlst)])
         (mlet (car pr) (cdr pr) (mlet* (cdr lstlst) e2)))))
 
-  
+
+; Other's code as reference
+(define (ifeq e1 e2 e3 e4)
+  (mlet* (list (cons "_x" e1) (cons "_y" e2))
+         (ifgreater (var "_x") (var "_y") e4
+                    (ifgreater (var "_y") (var "_x") e4
+                               e3))))
+
+
+#| My wrong code:
+
 (define (ifeq e1 e2 e3 e4)
   (let* ([pr (apair e1 e2)]
          [hd (fst pr)]
          [tl (snd pr)]
          [thunk_e3 (fun #f "_x" e3)]
          [thunk_e4 (fun #f "_y" e4)])
-     (mlet* (list (cons "_x" (call thunk_e3 0)) (cons "_y" (call thunk_e4 0)))
+     (mlet* (list (cons "_x" (call thunk_e3 (int 0))) (cons "_y" (call thunk_e4 (int 0))))
          (ifgreater (var "_x") (var "_y") e4
                     (ifgreater (var "_y") (var "_x") e4 e3)))))
-            
-    
-;; Problem 4
+
+|#
+
+
 
 (define mupl-map
   (fun #f "f" 
@@ -156,6 +169,24 @@
        (ifeq (isaunit (var "lst")) (int 1)
              (aunit)
              (apair (call (var "f") (fst (var "lst"))) (call (var "my_map") (snd (var "lst"))))))))
+
+
+; When debugging, this is ##VERY IMPORTANT##:
+(trace eval-under-env)
+
+
+#|
+Other's code as reference:
+
+; Problem 4
+(define mupl-map
+  (fun #f "func"
+       (fun "iter" "lst"
+            (ifaunit (var "lst") (aunit)
+                     (apair (call (var "func") (fst (var "lst")))
+                            (call (var "iter") (snd (var "lst"))))))))
+|#
+
 
 (define mupl-mapAddN 
   (mlet "map" mupl-map
