@@ -334,10 +334,6 @@ class LineSegment < GeometryValue
 			  LineSegment.new(@x1, @y1, @x1, seg.y2)
 		  elsif inbetween(@y2, seg.y1, seg.y2) and !inbetween(@y1, seg.y1, seg.y1)
 			  LineSegment.new(@x2, seg.y1, @x2, @y2)
-		  elsif inbetween(@y1, seg.y1, seg.y2) and inbetween(@y2, seg.y1, seg.y2)
-			  self
-		  elsif inbetween(seg.y1, @y1, @y2) and inbetween(seg.y2, @y1, @y2)
-			  seg
 
 
   end
